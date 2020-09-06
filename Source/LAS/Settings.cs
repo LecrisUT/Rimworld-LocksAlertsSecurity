@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Verse;
 
-namespace ModName
+namespace LAS
 {
     public class Settings : ModSettings
     {

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-	<name>[Author]ModName</name>
-	<author>Author</author>
-	<packageId>Author.ModName</packageId>
-	<url></url>
+	<name>LAS</name>
+	<author>Lecris, Taranchuk</author>
+	<packageId>lct.las</packageId>
+	<url>https://github.com/LecrisUT/Rimworld-LocksAlertsSecurity</url>
 	<description>(Empty)</description>
 	<supportedVersions>
         <li>1.2</li>

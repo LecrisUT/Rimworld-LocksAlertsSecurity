@@ -5,10 +5,10 @@
 *.ide-shm
 *.ide-wal
 .vs
-Source/ModName/.vs
-Source/ModName/ModName.csproj.user
-Source/ModName/obj
-Source/ModName/Properties/AssemblyInfo.cs
-ModName.rar
-1.1/Assemblies/ModName.pdb
-1.1/Assemblies/ModName.dll
+Source/LAS/.vs
+Source/LAS/LAS.csproj.user
+Source/LAS/obj
+Source/LAS/Properties/AssemblyInfo.cs
+LAS.rar
+1.*/Assemblies/LAS.pdb
+1.*/Assemblies/LAS.dll

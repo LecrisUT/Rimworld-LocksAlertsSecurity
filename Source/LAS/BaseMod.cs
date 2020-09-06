@@ -1,19 +1,19 @@
 ﻿using UnityEngine;
 using Verse;
 
-namespace ModName
+namespace LAS
 {
-    public class ModName : Mod
+    public class LAS : Mod
     {
-        public static ModName thisMod;
+        public static LAS thisMod;
         public Settings settings;
 
-        public ModName(ModContentPack content) : base(content)
+        public LAS(ModContentPack content) : base(content)
         {
             thisMod = this;
         }
 
-        public override string SettingsCategory() => "ModName".Translate();
+        public override string SettingsCategory() => "LockpickLock".Translate();
 
         public override void DoSettingsWindowContents(Rect inRect)
         {

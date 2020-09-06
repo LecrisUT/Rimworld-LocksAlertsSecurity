@@ -7,8 +7,8 @@
     <ProjectGuid>{8853D5B4-7350-4D62-B81F-949CFE84CF9E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ModName</RootNamespace>
-    <AssemblyName>ModName</AssemblyName>
+    <RootNamespace>LAS</RootNamespace>
+    <AssemblyName>LAS</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Krafs.Rimworld.Ref">
-      <Version>1.2.2719</Version>
+      <Version>1.2.2747-beta</Version>
     </PackageReference>
     <PackageReference Include="Lib.Harmony">
       <Version>2.0.2</Version>
@@ -55,15 +55,23 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI\JobDriver_LockUnlock.cs" />
     <Compile Include="BaseMod.cs" />
+    <Compile Include="Petdoor.cs" />
+    <Compile Include="Lock.cs" />
     <Compile Include="Controller.cs" />
+    <Compile Include="DefModExtension\LockExtension.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>AssemblyInfo.tt</DependentUpon>
     </Compile>
+    <Compile Include="ThingComp\DoorLockComp.cs" />
+    <Compile Include="ThingComp\LockComp.cs" />
+    <Compile Include="Utility\Extensions.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="TransformOnBuild" BeforeTargets="BeforeBuild">
     <PropertyGroup>
