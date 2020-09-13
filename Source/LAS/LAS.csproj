@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Krafs.Rimworld.Ref">
-      <Version>1.2.2747-beta</Version>
+      <Version>1.2.2753</Version>
     </PackageReference>
     <PackageReference Include="Lib.Harmony">
       <Version>2.0.2</Version>
@@ -55,8 +55,18 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI\WorkGiver_UpgradeLock.cs" />
+    <Compile Include="AI\WorkGiver_InstallUninstallLocks.cs" />
+    <Compile Include="AI\WorkGiver_ModifyLock.cs" />
+    <Compile Include="AI\WorkGiver_ToggleLock.cs" />
     <Compile Include="AI\JobDriver_LockUnlock.cs" />
     <Compile Include="BaseMod.cs" />
+    <Compile Include="DefOf\DesignationDefOf.cs" />
+    <Compile Include="DefOf\JobDefOf.cs" />
+    <Compile Include="Designation\MultipleThingDesignation.cs" />
+    <Compile Include="Gizmo\LockGizmo.cs" />
+    <Compile Include="Gizmo\DoorLockGizmo.cs" />
+    <Compile Include="Harmony\Building_Door.cs" />
     <Compile Include="Petdoor.cs" />
     <Compile Include="Lock.cs" />
     <Compile Include="Controller.cs" />

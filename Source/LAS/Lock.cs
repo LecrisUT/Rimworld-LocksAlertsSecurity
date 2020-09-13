@@ -11,7 +11,15 @@ namespace LAS
             Broken,
         }
         public bool automatic = false;
-        public LockState state;
+        private LockState state;
+        public LockState State => state;
+        public bool TrySetState(LockState state)
+        {
+            if (this.state == LockState.Broken && state != LockState.Broken)
+                return false;
+            this.state = state;
+            return true;
+        }
         public void ExposeData()
         {
             Scribe_Values.Look(ref state, "state");

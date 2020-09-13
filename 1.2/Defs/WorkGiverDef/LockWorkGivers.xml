@@ -1,0 +1,12 @@
+<Defs>
+  <WorkGiverDef>
+    <defName>ToggleLock</defName>
+    <label>toggle lock</label>
+    <giverClass>LAS.WorkGiver_ToggleLock</giverClass>
+    <workType>BasicWorker</workType>
+    <verb>toggle lock</verb>
+    <gerund>toggling lock</gerund>
+    <canBeDoneWhileDrafted>true</canBeDoneWhileDrafted>
+    <priorityInType>500</priorityInType>
+  </WorkGiverDef>
+</Defs>

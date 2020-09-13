@@ -1,0 +1,21 @@
+<Defs>
+    <DesignationDef>
+        <defName>ModifyDoorLock</defName>
+        <texturePath>Designations/Flick</texturePath>
+        <targetType>Thing</targetType>
+        <!--removeIfBuildingDespawned>true</removeIfBuildingDespawned-->
+    </DesignationDef>
+    <DesignationDef>
+        <defName>UpgradeDoorLock</defName>
+        <texturePath>Designations/Flick</texturePath>
+        <targetType>Thing</targetType>
+        <!--removeIfBuildingDespawned>true</removeIfBuildingDespawned-->
+    </DesignationDef>
+    <DesignationDef>
+        <defName>ToggleDoorLock</defName>
+        <texturePath>Designations/Flick</texturePath>
+        <targetType>Thing</targetType>
+        <designateCancelable>false</designateCancelable>
+        <!--removeIfBuildingDespawned>true</removeIfBuildingDespawned-->
+    </DesignationDef>
+</Defs>
