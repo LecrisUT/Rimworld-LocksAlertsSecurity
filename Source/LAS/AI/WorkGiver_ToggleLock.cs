@@ -23,9 +23,7 @@ namespace LAS
             if (pawn.Map.designationManager.DesignationOn(t, DesignationDefOf.ToggleDoorLock) == null)
                 return false;
             if (!pawn.CanReserve(t, 1, -1, null, forced))
-            {
                 return false;
-            }
             return true;
         }
         public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)

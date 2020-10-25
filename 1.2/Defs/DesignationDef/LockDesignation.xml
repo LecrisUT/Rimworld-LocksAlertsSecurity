@@ -13,7 +13,7 @@
     </DesignationDef>
     <DesignationDef>
         <defName>ToggleDoorLock</defName>
-        <texturePath>Designations/Flick</texturePath>
+        <texturePath>Designations/Lock</texturePath>
         <targetType>Thing</targetType>
         <designateCancelable>false</designateCancelable>
         <!--removeIfBuildingDespawned>true</removeIfBuildingDespawned-->

@@ -12,11 +12,11 @@ namespace LAS
     public class LockGizmo : Command_Target
     {
         private ThingWithComps lockThing;
-        private LockComp Lock;
-        public LockGizmo(ThingWithComps thing, LockComp Lock)
+        private LockComp lockComp;
+        public LockGizmo(ThingWithComps thing, LockComp lockComp)
         {
             lockThing = thing;
-            this.Lock = Lock;
+            this.lockComp = lockComp;
             targetingParams = new TargetingParameters
             {
                 thingCategory = ThingCategory.Building,
@@ -27,7 +27,7 @@ namespace LAS
                 validator = delegate(TargetInfo target)
                 {
                     var t = target.Thing as ThingWithComps;
-                    if (t != null && t.IsDoorLock(out _))
+                    if (t != null && t.HasDoorLock(out _))
                         return true;
                     return false;
                 }

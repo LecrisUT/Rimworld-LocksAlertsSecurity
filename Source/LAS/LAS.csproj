@@ -55,22 +55,25 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI\Stance_ToggleDoor.cs" />
     <Compile Include="AI\WorkGiver_UpgradeLock.cs" />
     <Compile Include="AI\WorkGiver_InstallUninstallLocks.cs" />
     <Compile Include="AI\WorkGiver_ModifyLock.cs" />
     <Compile Include="AI\WorkGiver_ToggleLock.cs" />
     <Compile Include="AI\JobDriver_LockUnlock.cs" />
     <Compile Include="BaseMod.cs" />
+    <Compile Include="CompProperties\CompProperties_DoorLock.cs" />
+    <Compile Include="Database\Dictionaries.cs" />
     <Compile Include="DefOf\DesignationDefOf.cs" />
     <Compile Include="DefOf\JobDefOf.cs" />
     <Compile Include="Designation\MultipleThingDesignation.cs" />
     <Compile Include="Gizmo\LockGizmo.cs" />
     <Compile Include="Gizmo\DoorLockGizmo.cs" />
     <Compile Include="Harmony\Building_Door.cs" />
-    <Compile Include="Petdoor.cs" />
-    <Compile Include="Lock.cs" />
+    <Compile Include="Door.cs" />
     <Compile Include="Controller.cs" />
-    <Compile Include="DefModExtension\LockExtension.cs" />
+    <Compile Include="CompProperties\CompProperties_Lock.cs" />
+    <Compile Include="Harmony\Pawn_PathFollower.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <AutoGen>True</AutoGen>
@@ -78,6 +81,7 @@
       <DependentUpon>AssemblyInfo.tt</DependentUpon>
     </Compile>
     <Compile Include="ThingComp\DoorLockComp.cs" />
+    <Compile Include="ThingComp\KeyHolderComp.cs" />
     <Compile Include="ThingComp\LockComp.cs" />
     <Compile Include="Utility\Extensions.cs" />
   </ItemGroup>
@@ -92,4 +96,10 @@
     <Exec Command="del &quot;$(_TextTransformResult)&quot;" />
     <Exec Command="&quot;$(_TransformExe)&quot; &quot;$(_TextTransform)&quot; -out &quot;$(_TextTransformResult)&quot;" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>if NOT $(ConfigurationName) == Debug (
+cd ..\..\
+call tar --exclude=.git* --exclude=Source --exclude=$(SolutionName).zip --exclude=*.pdb  -caf $(SolutionName).zip .
+)</PostBuildEvent>
+  </PropertyGroup>
 </Project>

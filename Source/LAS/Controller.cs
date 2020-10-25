@@ -10,20 +10,22 @@ namespace LAS
     {
         public override void DefsLoaded()
         {
-            foreach (var def in DefDatabase<ThingDef>.AllDefs.Where(t=>t.thingClass == typeof(Building_Door)))
+            foreach (var def in DefDatabase<ThingDef>.AllDefs.Where(t => t.race?.Humanlike ?? false))
+            {
+                if (def.comps == null)
+                    def.comps = new List<CompProperties>();
+                def.comps.Add(new CompProperties(typeof(KeyHolderComp)));
+            }
+            foreach (var def in DefDatabase<ThingDef>.AllDefs.Where(t => typeof(Building_Door).IsAssignableFrom(t.thingClass)))
             {
                 if (!def.HasComp(typeof(DoorLockComp)))
                 {
-                    if (def.comps.NullOrEmpty())
+                    if (def.comps == null)
                         def.comps = new List<CompProperties>();
-                    def.comps.Add(new CompProperties(typeof(DoorLockComp)));
+                    def.comps.Add(new CompProperties_DoorLock());
                 }
-                if (!def.HasModExtension<LockExtension>())
-                {
-                    if (def.modExtensions.NullOrEmpty())
-                        def.modExtensions = new List<DefModExtension>();
-                    def.modExtensions.Add(new LockExtension());
-                }
+                /*if (def.thingClass == typeof(Building_Door))
+                    def.thingClass = typeof(Door);*/
             }
         }
     }

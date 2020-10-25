@@ -1,124 +1,277 @@
 ﻿using LAS.Utility;
 using RimWorld;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using Verse;
 
 namespace LAS
 {
-    public class DoorLockComp : LockComp
+    public class DoorLockComp : ThingComp, ILoadReferenceable, IThingHolder
     {
-        public LockComp this[ThingWithComps thing] => installedLocks.Contains(thing) ? thing.GetComp<LockComp>() : null;
-        private Building_Door Door => parent as Building_Door;
+        public class Petdoor : IExposable
+        {
+            public enum Size
+            {
+                Small,
+                Medium,
+                Large,
+            }
+            public Size size;
+            public void ExposeData()
+            {
+                Scribe_Values.Look(ref size, "size");
+            }
+        }
         public Petdoor petdoor;
-        public Lock.LockState LockState
-        {
-            get
-            {
-                var state = Lock.State;
-                if (installedLocks.NullOrEmpty() || state == Lock.LockState.Locked)
-                    return state;
-                foreach (var lockComp in LockComps)
-                {
-                    switch (lockComp.Lock.State)
-                    {
-                        case Lock.LockState.Locked:
-                            return Lock.LockState.Locked;
-                        case Lock.LockState.Broken:
-                            state = Lock.LockState.Broken;
-                            break;
-                    }
-                }
-                return state;
-            }
-        }
-        public override void TryAutomaticLock()
-        {
-            base.TryAutomaticLock();
-            foreach (var lockComp in LockComps)
-                lockComp.TryAutomaticLock();
-        }
-        public bool cached_installedLocks = false;
-        private List<ThingWithComps> installedLocks = new List<ThingWithComps>();
-        public List<ThingWithComps> InstalledLocksList
-        {
-            get
-            {
-                cached_installedLocks = false;
-                return installedLocks;
-            }
-        }
-        public IEnumerable<ThingWithComps> InstalledLocks
-        {
-            get
-            {
-                if (!cached_installedLocks)
-                    UpdateLocks();
-                return installedLocks;
-            }
-        }
-        private List<LockComp> lockComps;
+        public KeyHolderComp keyHolder;
+        public LockComp.LockState assignedState;
+        private Effecter progressBar;
+        private LockComp currLock;
+        public bool lockWhenAway = true;
+        private bool toggling = false;
+        private List<LockComp> locksToToggle = new List<LockComp>();
+        public Building_Door Door => parent as Building_Door;
+        public CompProperties_DoorLock CompProp => (CompProperties_DoorLock)props;
+        public bool Toggling => toggling;
+        private ThingOwner<ThingWithComps> lockOwner;
+        private List<LockComp.LockThingPair> locks = new List<LockComp.LockThingPair>();
+        public IEnumerable<LockComp.LockThingPair> Locks => locks;
         public IEnumerable<LockComp> LockComps
         {
             get
             {
-                if (!cached_installedLocks)
-                    UpdateLocks();
-                return lockComps;
+                foreach (var pair in locks)
+                    yield return pair.comp;
             }
         }
-        public void UpdateLocks()
+        public LockComp.LockState State 
         {
-            lockComps = new List<LockComp>();
-            foreach (var thing in installedLocks.ToList())
-                if (thing.IsLock(out LockComp lockComp))
-                    lockComps.Add(lockComp);
+            get
+            {
+                if (locks.NullOrEmpty())
+                    return LockComp.LockState.Default;
+                var state = locks.First().comp.State;
+                foreach (var pair in locks)
+                {
+                    var lockState = pair.comp.State;
+                    // If any lock is locked, door is locked
+                    state |= lockState & (LockComp.LockState)0b001;
+                    // If all locks are broken, door lock is broken
+                    // If all locks are automatic, door is automatic
+                    state &= lockState | (LockComp.LockState)0b001;
+                }
+                return state;
+            }
+        }
+        public int ToggleTime
+        {
+            get
+            {
+                var val = 0;
+                foreach (var pair in locks)
+                    val += pair.comp.ToggleTime;
+                return val;
+            }
+        }
+        public float Security
+        {
+            get
+            {
+                var val = 0f;
+                foreach (var pair in locks)
+                    val += pair.comp.Security;
+                return val;
+            }
+        }
+        public float MaxSecurity
+        {
+            get
+            {
+                var val = 0f;
+                foreach (var pair in locks)
+                    val += pair.comp.MaxSecurity;
+                return val;
+            }
+        }
+        public override void Initialize(CompProperties props)
+        {
+            base.Initialize(props);
+            lockOwner = new ThingOwner<ThingWithComps>(this);
+            var tickManager = Find.TickManager;
+            foreach (var tLockDef in CompProp.defaultLocks)
+            {
+                var tLock = (ThingWithComps)ThingMaker.MakeThing(tLockDef, GenStuff.DefaultStuffFor(tLockDef));
+                InstallLock(tLock);
+                tickManager.RegisterAllTickabilityFor(tLock);
+            }
+        }
+        public void InstallLock(LockComp.LockThingPair pair)
+        {
+            pair.comp.installedThing = parent;
+            pair.comp.postToggle = delegate
+            {
+                var map = parent.MapHeld;
+                map.pathGrid.RecalculatePerceivedPathCostUnderThing(parent);
+                map.reachability.ClearCache();
+                map.regionDirtyer.DirtyCells.Add(parent.Position);
+            };
+            if (!locks.Contains(pair))
+                locks.Add(pair);
+            if (!lockOwner.Contains(pair.thing))
+                lockOwner.TryAddOrTransfer(pair.thing);
+        }
+        public void InstallLock(ThingWithComps lockThing)
+        {
+            if (!lockThing.IsLock(out var lockComp))
+                if (lockOwner.Contains(lockThing))
+                {
+                    lockOwner.TryDrop(lockThing, ThingPlaceMode.Near, out _);
+                    return;
+                }
+            var pair = new LockComp.LockThingPair(lockComp.parent, lockComp);
+            InstallLock(pair);
+        }
+        public void InstallLock(LockComp lockComp)
+        {
+            var pair = new LockComp.LockThingPair(lockComp.parent, lockComp);
+            InstallLock(pair);
+        }
+        public void RemoveLock(ThingWithComps lockThing, ThingOwner outOwner = null)
+        {
+            if (!lockThing.IsLock(out var lockComp))
+            {
+                if (lockOwner.Contains(lockThing))
+                    lockOwner.TryDrop(lockThing, ThingPlaceMode.Near, out _);
+                return;
+            }
+            if (lockComp.installedThing != parent)
+                return;
+            lockComp.installedThing = null;
+            lockComp.postToggle = null;
+            locks.RemoveAll(t => t.thing == lockThing);
+            if (outOwner == null)
+                lockOwner.TryDrop(lockThing, ThingPlaceMode.Near, out _);
+            else
+                lockOwner.TryTransferToContainer(lockThing, outOwner, false);
+        }
+        public void RemoveLock(LockComp lockComp, ThingOwner outOwner = null, Map map = null, IntVec3 pos = default)
+        {
+            if (lockComp.installedThing != parent)
+                return;
+            lockComp.installedThing = null;
+            lockComp.postToggle = null;
+            locks.RemoveAll(t => t.comp == lockComp);
+            if (outOwner == null)
+                lockOwner.TryDrop(lockComp.parent, map != null ? pos : parent.PositionHeld, map != null ? map : parent.MapHeld, ThingPlaceMode.Near, out _);
+            else
+                lockOwner.TryTransferToContainer(lockComp.parent, outOwner, false);
+        }
+        public virtual void StartToggle(KeyHolderComp keyComp = null, bool withProgressBar = true)
+            => StartToggle(!State.IsLocked(), keyComp, withProgressBar);
+        public void StartToggle(bool locked, KeyHolderComp keyComp = null, bool withProgressBar = true)
+        {
+            var ticksToToggle = 0;
+            var waitTime = 0;
+            locksToToggle.Clear();
+            foreach (var lockComp in LockComps)
+            {
+                var lockState = lockComp.State;
+                if (lockState.IsLocked() == locked || lockState.IsBroken())
+                    continue;
+                locksToToggle.Add(lockComp);
+                if (lockState.IsAutomatic())
+                {
+                    lockComp.StartToggle(withProgressBar: withProgressBar);
+                    waitTime = Math.Max(waitTime, lockComp.CompProp.unlockTime);
+                }
                 else
-                    installedLocks.Remove(thing);
-            cached_security = false;
-            cached_installedLocks = true;
-        }
-        public IEnumerable<LockExtension> LockExtensions { get => LockComps.Select(t => t.Extension); }
-        public override int ToggleTime
-        {
-            get
+                    ticksToToggle += lockComp.CompProp.unlockTime;
+            }
+            waitTime = Math.Max(waitTime, ticksToToggle);
+            if (keyHolder != null && keyHolder.Pawn.stances.curStance is Stance_ToggleDoor stance)
+                stance.Interrupt();
+            if (waitTime == 0)
+                return;
+            assignedState = locked ? LockComp.LockState.Locked : LockComp.LockState.Default;
+            keyHolder = keyComp;
+            if (keyHolder != null)
+                keyHolder.Pawn.stances.SetStance(new Stance_ToggleDoor(waitTime, parent, null));
+            if (withProgressBar)
             {
-                var val = base.ToggleTime;
-                foreach (var lockComp in LockComps)
-                    val += lockComp.ToggleTime;
-                return val;
+                progressBar = EffecterDefOf.ProgressBar.Spawn();
+                progressBar.ticksLeft = waitTime;
+            }
+            toggling = true;
+        }
+        public void StartLock(KeyHolderComp keyComp = null, bool withProgressBar = true)
+            => StartToggle(true, keyComp, withProgressBar);
+        public void StartUnlock(KeyHolderComp keyComp = null, bool withProgressBar = true)
+            => StartToggle(false, keyComp, withProgressBar);
+        public void TryAutomaticLock()
+        {
+            foreach (var lockComp in LockComps)
+                lockComp.TryAutomaticLock();
+        }
+        public LockComp GetNextLockToToggle(bool includeAutomatic = false)
+            => LockComps.FirstOrFallback(t => !t.Toggling && !t.State.IsBroken() && !t.State.IsState(assignedState) && (includeAutomatic || !t.State.IsAutomatic()));
+        public void InterruptToggle()
+        {
+            foreach (var lockComp in LockComps)
+                lockComp.InterruptToggle();
+            if (progressBar != null)
+            {
+                progressBar.Cleanup();
+                progressBar = null;
+            }
+            toggling = false;
+        }
+        public override void CompTick()
+        {
+            if (!toggling)
+                return;
+            if (progressBar != null)
+            {
+                if (progressBar.ticksLeft <= 0)
+                    progressBar.ticksLeft = 1;
+                var progress = locksToToggle.Where(t => t.State.IsState(assignedState)).Count();
+                progressBar.EffectTick(parent, keyHolder?.Pawn ?? TargetInfo.Invalid);
+                var mote = ((SubEffecter_ProgressBar)progressBar.children[0]).mote;
+                if (mote != null)
+                {
+                    mote.progress = Mathf.Clamp01((float)progress / locksToToggle.Count);
+                    mote.offsetZ = CompProp.progressBarOffset;
+                }
+            }
+            if (assignedState.IsLocked() && Door.Open)
+                return;
+            if (currLock == null)
+                currLock = GetNextLockToToggle();
+            if (currLock != null)
+            {
+                if (currLock.Toggling)
+                    return;
+                currLock = GetNextLockToToggle();
+                currLock?.StartToggle(keyHolder, progressBar != null);
+                return;
+            }
+            else if (!LockComps.Any(t => t.Toggling))
+            {
+                if (progressBar != null)
+                {
+                    progressBar.Cleanup();
+                    progressBar = null;
+                }
+                toggling = false;
+                locksToToggle.Clear();
             }
         }
-        public override float Security
+        public override void PostDestroy(DestroyMode mode, Map previousMap)
         {
-            get
-            {
-                var val = base.Security;
-                foreach (var lockComp in lockComps)
-                    val += lockComp.Security;
-                return val;
-            }
-        }
-        public override bool ToggleLock()
-        {
-            var result = base.ToggleLock();
-            foreach (var lockComp in LockComps)
-                result &= lockComp.ToggleLock();
-            var map = Door.Map;
-            map.pathGrid.RecalculatePerceivedPathCostUnderThing(Door);
-            map.reachability.ClearCache();
-            map.regionDirtyer.DirtyCells.Add(Door.Position);
-            return result;
-        }
-        public override void AssignLockState(Lock.LockState lockState)
-        {
-            base.AssignLockState(lockState);
-            foreach (var lockComp in LockComps)
-                lockComp.AssignLockState(lockState);
-        }
-        public override string CompInspectStringExtra()
-        {
-            return base.CompInspectStringExtra();
+            if (mode == DestroyMode.Deconstruct)
+                foreach (var tLock in lockOwner)
+                    RemoveLock(tLock);
         }
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
@@ -126,9 +279,22 @@ namespace LAS
         }
         public override void PostExposeData()
         {
-            base.PostExposeData();
+            Scribe_References.Look(ref keyHolder, "keyHolder");
+            Scribe_Values.Look(ref assignedState, "assignedState");
+            Scribe_Deep.Look(ref progressBar, "progressBar");
+            Scribe_References.Look(ref currLock, "currLock");
+            Scribe_Values.Look(ref toggling, "toggling", false);
+            Scribe_Collections.Look(ref locksToToggle, "locksToToggle");
             Scribe_Deep.Look(ref petdoor, "petdoor");
-            Scribe_Collections.Look(ref installedLocks, "installedLocks", LookMode.Reference);
+            Scribe_Deep.Look(ref lockOwner, "lockOwner", this);
+            Scribe_Values.Look(ref lockWhenAway, "lockWhenAway", true);
+            if (Scribe.mode == LoadSaveMode.LoadingVars)
+                foreach (var tLock in lockOwner)
+                    InstallLock(tLock);
         }
+        public string GetUniqueLoadID() => parent.GetUniqueLoadID() + "_DoorLockComp";
+        public void GetChildHolders(List<IThingHolder> outChildren) { }
+        public ThingOwner GetDirectlyHeldThings()
+            => lockOwner;
     }
 }

@@ -5,6 +5,8 @@ namespace LAS
 {
     public class Settings : ModSettings
     {
+        public static bool AllIDoor = false;
+        public static int nCachedDoorLocks = 500;
         public void DoWindowContents(Rect wrect)
         {
             Listing_Standard options = new Listing_Standard();

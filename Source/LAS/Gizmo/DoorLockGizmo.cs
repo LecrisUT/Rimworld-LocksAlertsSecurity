@@ -1,4 +1,5 @@
-﻿using RimWorld;
+﻿using LAS.Utility;
+using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.Sound;
@@ -11,9 +12,10 @@ namespace LAS
         private DoorLockComp doorLock;
         public DoorLockGizmo(Building_Door door, DoorLockComp doorLock)
         {
+            // icon = ContentFinder<Texture2D>.Get(DesignationDefOf.ToggleDoorLock.texturePath);
             this.door = door;
             this.doorLock = doorLock;
-            isActive = delegate { return this.doorLock.LockState == Lock.LockState.Unlocked; };
+            isActive = delegate { return this.doorLock.State.IsLocked(); };
             toggleAction = delegate
             {
                 var des = this.door.Map.designationManager;
@@ -23,12 +25,15 @@ namespace LAS
                 else
                 {
                     des.AddDesignation(new Designation(this.door, DesignationDefOf.ToggleDoorLock));
-                    if (isActive())
-                        doorLock.AssignLockState(Lock.LockState.Locked);
-                    else
-                        doorLock.AssignLockState(Lock.LockState.Unlocked);
+                    doorLock.assignedState = isActive() ? LockComp.LockState.Default : LockComp.LockState.Locked;
                 }
             };
+        }
+        public override Color IconDrawColor => isActive() ? Color.red : Color.green;
+        protected override void DrawIcon(Rect rect, Material buttonMat = null)
+        {
+            icon = isActive() ? ContentFinder<Texture2D>.Get("Icons/Locked") : ContentFinder<Texture2D>.Get("Icons/Unlocked");
+            base.DrawIcon(rect, buttonMat);
         }
     }
 }
