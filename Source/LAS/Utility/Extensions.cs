@@ -10,6 +10,17 @@ namespace LAS.Utility
         public static bool IsLock(this ThingDef tdef, out CompProperties_Lock compProp)
             => (compProp = tdef.GetCompProperties<CompProperties_Lock>()) != null;
         // Door might have a lot of Comps => cache DoorLockComp if necessary
+        public static bool HasDoorLock(this ThingDef tdef, out CompProperties_DoorLock compProp)
+            => (compProp = tdef.GetCompProperties<CompProperties_DoorLock>()) != null;
+        public static bool HasDoorLock(this Thing thing, out DoorLockComp doorLockComp)
+        {
+            if (!(thing is Building_Door door) || !door.HasDoorLock(out doorLockComp, false))
+            {
+                doorLockComp = null;
+                return false;
+            }
+            return true;
+        }
         public static bool HasDoorLock(this ThingWithComps thing, bool AddToDictionary = true)
             => thing is Building_Door door && door.HasDoorLock(AddToDictionary);
         public static bool HasDoorLock(this ThingWithComps thing, out DoorLockComp doorLockComp, bool AddToDictionary = true)
@@ -74,6 +85,11 @@ namespace LAS.Utility
             if (!door.HasDoorLock(out var doorLock))
                 return false;
             return doorLock.State.IsLocked();
+        }
+        public static bool HasLockpicks(this Pawn pawn)
+        {
+            // TODO
+            return true;
         }
     }
 }

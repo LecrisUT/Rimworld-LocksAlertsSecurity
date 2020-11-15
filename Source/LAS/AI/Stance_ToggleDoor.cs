@@ -9,9 +9,8 @@ namespace LAS
         private DoorLockComp doorLockComp;
         public Stance_ToggleDoor(int ticks, LocalTargetInfo focusTarg, Verb verb) : base(ticks, focusTarg, verb)
         {
-            if (!(focusTarg.Thing is Building_Door door) || !door.HasDoorLock(out var doorLockComp))
+            if (!(focusTarg.Thing is Building_Door door) || !door.HasDoorLock(out doorLockComp))
                 return;
-            this.doorLockComp = doorLockComp;
         }
         public void Interrupt()
         {

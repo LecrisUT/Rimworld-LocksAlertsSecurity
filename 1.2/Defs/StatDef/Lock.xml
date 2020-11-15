@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+	<StatDef>
+		<defName>LockpickingSuccess</defName>
+		<label>lockpicking success</label>
+		<description>The pawn's success chance of picking a lock</description>
+		<category>PawnWork</category>
+		<defaultBaseValue>0</defaultBaseValue>
+		<minValue>-1</minValue>
+		<maxValue>1</maxValue>
+		<toStringStyle>PercentZero</toStringStyle>
+		<skillNeedOffsets>
+			<li Class="SkillNeed_BaseBonus">
+				<skill>Crafting</skill>
+				<baseValue>0.1</baseValue>
+				<bonusPerLevel>0.05</bonusPerLevel>
+			</li>
+			<li Class="SkillNeed_BaseBonus">
+				<skill>Intellectual</skill>
+				<baseValue>0.1</baseValue>
+				<bonusPerLevel>0.05</bonusPerLevel>
+			</li>
+		</skillNeedOffsets>
+		<capacityFactors>
+			<li>
+				<capacity>Manipulation</capacity>
+				<weight>0.3</weight>
+				<max>1</max>
+			</li>
+			<li>
+				<capacity>Sight</capacity>
+				<weight>0.2</weight>
+				<max>1</max>
+			</li>
+		</capacityFactors>
+		<displayPriorityInCategory>6000</displayPriorityInCategory>
+	</StatDef>
+
+	<StatDef>
+		<defName>LockpickingSpeed</defName>
+		<label>lockpicking speed</label>
+		<description>The pawn's speed for picking locks</description>
+		<category>PawnWork</category>
+		<defaultBaseValue>1</defaultBaseValue>
+		<minValue>0.1</minValue>
+		<maxValue>5</maxValue>
+		<toStringStyle>PercentZero</toStringStyle>
+		<skillNeedFactors>
+			<li Class="SkillNeed_BaseBonus">
+				<skill>Crafting</skill>
+				<baseValue>0.4</baseValue>
+				<bonusPerLevel>0.2</bonusPerLevel>
+			</li>
+		</skillNeedFactors>
+		<capacityFactors>
+			<li>
+				<capacity>Manipulation</capacity>
+				<weight>0.3</weight>
+				<max>1</max>
+			</li>
+			<li>
+				<capacity>Sight</capacity>
+				<weight>0.2</weight>
+				<max>1</max>
+			</li>
+		</capacityFactors>
+		<displayPriorityInCategory>6001</displayPriorityInCategory>
+	</StatDef>
+</Defs>

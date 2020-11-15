@@ -60,8 +60,20 @@ namespace LAS
         private bool toggling = false;
         private int nextTickToToggle;
         private int ticksToToggle;
+        private int pinsSet = 0;
+        private int pins = 0;
         public CompProperties_Lock CompProp => (CompProperties_Lock)props;
         public virtual LockState State => state;
+        public int BindingPin
+        {
+            get
+            {
+                if (pinsSet >= pins)
+                    return 0;
+                return pinsSet + 1;
+            }
+        }
+        public int Pins => pins;
         public bool Toggling => toggling;
         public bool NeedsToggling => state != assignedState;
         public virtual int ToggleTime => (NeedsToggling && !state.IsAutomatic()) ? CompProp.unlockTime : 0;
@@ -83,11 +95,18 @@ namespace LAS
                 return security;
             }
         }
+        public virtual void SetPin()
+        {
+            pinsSet++;
+            if (pinsSet >= pins)
+                state &= (LockState)0b110;
+        }
         public override void Initialize(CompProperties props)
         {
             base.Initialize(props);
             state.SetState(CompProp.automatic ? LockState.Automatic : LockState.Default, LockState.Automatic);
             security = CompProp.baseSecurityLevel;
+            pins = CompProp.basePins;
             assignedState = state;
         }
         public virtual void AssignState(LockState state, LockState mask = LockState.Locked)

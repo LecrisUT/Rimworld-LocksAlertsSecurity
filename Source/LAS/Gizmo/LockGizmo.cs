@@ -36,10 +36,8 @@ namespace LAS
             {
                 var manager = door.Map.designationManager;
                 var desig = manager.DesignationOn(door, DesignationDefOf.ModifyDoorLock);
-                if (desig == null || !(desig is MultipleThingDesignation mdesig))
-                    door.Map.designationManager.AddDesignation(new MultipleThingDesignation(door, DesignationDefOf.ModifyDoorLock, new List<Thing> { lockThing }));
-                else
-                    mdesig.things.Add(lockThing);
+                if (desig == null)
+                    door.Map.designationManager.AddDesignation(new Designation(door, DesignationDefOf.ModifyDoorLock));
             };
         }
     }

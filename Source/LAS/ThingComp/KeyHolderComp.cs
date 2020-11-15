@@ -8,6 +8,10 @@ namespace LAS
         public Pawn Pawn => parent as Pawn;
         public static List<KeyHolderComp> allKeyHolders;
         public string GetUniqueLoadID() => parent.GetUniqueLoadID() + "_KeyHolderComp";
+        public bool CanUnlock(LockComp lockComp)
+        {
+            return true;
+        }
         public override void PostSpawnSetup(bool respawningAfterLoad)
         {
             var map = parent.MapHeld;

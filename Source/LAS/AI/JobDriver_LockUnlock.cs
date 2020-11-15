@@ -15,26 +15,12 @@ namespace LAS
         }
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            var door = TargetThingA as ThingWithComps;
-            door.HasDoorLock(out var doorLockComp);
+            var door = TargetThingA as Building_Door;
+            door.HasDoorLock(out var doorLock);
             pawn.HasKeyHolderComp(out var keyHolder);
-            var des = door.Map.designationManager;
-            //this.FailOn(delegate
-            //{
-            //    return des.DesignationOn(door, DesignationDefOf.ToggleDoorLock) == null;
-            //});
-            var time = doorLockComp.ToggleTime;
-            // yield return Toils_Reserve.Reserve(TargetIndex.A);
             yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
-            yield return Toils_General.WaitWith(TargetIndex.A, time, true);
-            var toilLockUnlock = Toils_General.Do(delegate
-            {
-                doorLockComp.StartToggle(doorLockComp.assignedState.IsLocked(), keyHolder, true);
-                SoundDefOf.FlickSwitch.PlayOneShot(door);
-                des.TryRemoveDesignationOn(door, DesignationDefOf.ToggleDoorLock);
-            });
-            toilLockUnlock.defaultCompleteMode = ToilCompleteMode.FinishedBusy;
-            yield return toilLockUnlock;
+            yield return Toils_Utility.LockUnlockDoor(keyHolder, door, doorLock);
+            yield return Toils_General.RemoveDesignationsOnThing(TargetIndex.A, DesignationDefOf.ToggleDoorLock);
         }
     }
 }

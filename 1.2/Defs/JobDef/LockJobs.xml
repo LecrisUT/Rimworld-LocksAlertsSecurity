@@ -24,8 +24,8 @@
         <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
     </JobDef>
     <JobDef>
-        <defName>LockPick</defName>
-        <driverClass>LAS.JobDriver_LockUnlock</driverClass>
+        <defName>Lockpick</defName>
+        <driverClass>LAS.JobDriver_Lockpick</driverClass>
         <reportString>lockpicking: TargetA.</reportString>
         <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
     </JobDef>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <DutyDef>
+    <defName>Lockpicker</defName>
+    <alwaysShowWeapon>true</alwaysShowWeapon>
+    <thinkNode Class="ThinkNode_Priority">
+      <subNodes>
+        <li Class="JobGiver_TakeCombatEnhancingDrug" />
+        <li Class="JobGiver_AIFightEnemies">
+          <targetAcquireRadius>12</targetAcquireRadius>
+          <targetKeepRadius>15</targetKeepRadius>
+          <needLOSToAcquireNonPawnTargets>true</needLOSToAcquireNonPawnTargets>
+        </li>
+        <li Class="LAS.JobGiver_AILockpicker" />
+        <li Class="JobGiver_AISapper" />
+        <li Class="JobGiver_AITrashColonyClose" />
+        <li Class="JobGiver_AITrashBuildingsDistant" />
+        <li Class="JobGiver_AIGotoNearestHostile" />
+      </subNodes>
+    </thinkNode>
+  </DutyDef>
+</Defs>

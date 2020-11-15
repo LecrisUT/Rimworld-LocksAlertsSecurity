@@ -9,7 +9,7 @@ namespace LAS
         public static JobDef InstallLock;
         public static JobDef UpgradeLock;
         public static JobDef RemoveLock;
-        public static JobDef LockPick;
+        public static JobDef Lockpick;
         public static JobDef ToggleLock;
     }
 }

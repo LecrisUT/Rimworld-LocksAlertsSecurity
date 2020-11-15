@@ -6,6 +6,18 @@
         <!--removeIfBuildingDespawned>true</removeIfBuildingDespawned-->
     </DesignationDef>
     <DesignationDef>
+        <defName>InstallDoorLock</defName>
+        <texturePath>Designations/Flick</texturePath>
+        <targetType>Thing</targetType>
+        <!--removeIfBuildingDespawned>true</removeIfBuildingDespawned-->
+    </DesignationDef>
+    <DesignationDef>
+        <defName>UninstallDoorLock</defName>
+        <texturePath>Designations/Flick</texturePath>
+        <targetType>Thing</targetType>
+        <!--removeIfBuildingDespawned>true</removeIfBuildingDespawned-->
+    </DesignationDef>
+    <DesignationDef>
         <defName>UpgradeDoorLock</defName>
         <texturePath>Designations/Flick</texturePath>
         <targetType>Thing</targetType>

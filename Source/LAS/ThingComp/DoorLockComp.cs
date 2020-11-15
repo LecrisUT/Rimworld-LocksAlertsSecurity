@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Verse;
+using Verse.AI;
 
 namespace LAS
 {
@@ -46,6 +47,7 @@ namespace LAS
                     yield return pair.comp;
             }
         }
+        public LockComp FirstLocked => LockComps.FirstOrDefault(t => t.State.IsLocked());
         public LockComp.LockState State 
         {
             get
@@ -276,6 +278,29 @@ namespace LAS
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
             yield return new DoorLockGizmo(Door, this);
+            if (Prefs.DevMode)
+            {
+                Command_Action command_Action = new Command_Action();
+                command_Action.defaultLabel = "Debug: Lock/Unlock door";
+                command_Action.action = delegate
+                {
+                    foreach (var lockComp in LockComps)
+                        lockComp.TrySetState(State.IsLocked() ? LockComp.LockState.Default : LockComp.LockState.Locked, (LockComp.LockState)0b001);
+                };
+                yield return command_Action;
+            }
+        }
+        public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
+        {
+            yield return new FloatMenuOption("Lockpick", delegate
+            {
+                var job = JobMaker.MakeJob(JobDefOf.Lockpick, parent);
+                foreach (var lockComp in LockComps.Where(t => t.State.IsLocked()))
+                    job.AddQueuedTarget(TargetIndex.B, lockComp.parent);
+                if (job.GetTargetQueue(TargetIndex.B).NullOrEmpty())
+                    return;
+                selPawn.jobs.StartJob(job, JobCondition.InterruptForced);
+            });
         }
         public override void PostExposeData()
         {
@@ -284,7 +309,7 @@ namespace LAS
             Scribe_Deep.Look(ref progressBar, "progressBar");
             Scribe_References.Look(ref currLock, "currLock");
             Scribe_Values.Look(ref toggling, "toggling", false);
-            Scribe_Collections.Look(ref locksToToggle, "locksToToggle");
+            Scribe_Collections.Look(ref locksToToggle, "locksToToggle", LookMode.Reference);
             Scribe_Deep.Look(ref petdoor, "petdoor");
             Scribe_Deep.Look(ref lockOwner, "lockOwner", this);
             Scribe_Values.Look(ref lockWhenAway, "lockWhenAway", true);
