@@ -50,7 +50,8 @@ namespace LAS
             Automatic = 0b100,
         }
         private Effecter progressBar;
-        public Thing installedThing;
+        private Thing installedThing;
+        private Thing assignedThing;
         private LockState state;
         public LockState assignedState;
         public bool lockWhenAway = true;
@@ -73,6 +74,16 @@ namespace LAS
                 return pinsSet + 1;
             }
         }
+        public Thing InstalledThing
+        {
+            get => installedThing;
+            set
+            {
+                installedThing = value;
+                assignedThing = null;
+            }
+        }
+        public Thing AssignedThing => assignedThing;
         public int Pins => pins;
         public bool Toggling => toggling;
         public bool NeedsToggling => state != assignedState;
@@ -194,14 +205,46 @@ namespace LAS
         }
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
-            yield return new LockGizmo(parent, this);
+            yield return new Command_Target
+            {
+                targetingParams = new TargetingParameters
+                {
+                    thingCategory = ThingCategory.Building,
+                    canTargetPawns = false,
+                    canTargetBuildings = true,
+                    canTargetItems = false,
+                    onlyTargetFactions = new List<Faction>(1) { Find.FactionManager.OfPlayer },
+                    validator = delegate (TargetInfo target)
+                    {
+                        if (target.Thing is ThingWithComps t && t.HasDoorLock(out _))
+                            return true;
+                        return false;
+                    }
+                },
+                action = delegate (Thing door)
+                {
+                    var manager = door.Map.designationManager;
+                    if (manager.DesignationOn(parent, DesignationDefOf.InstallLock) is Designation des)
+                    {
+                        des.Delete();
+                        if (assignedThing != null)
+                            manager.TryRemoveDesignationOn(assignedThing, DesignationDefOf.InstallLock);
+                    }
+                    var desig = manager.DesignationOn(door, DesignationDefOf.InstallLock);
+                    if (desig == null)
+                        manager.AddDesignation(new Designation(door, DesignationDefOf.InstallLock));
+                    manager.AddDesignation(new Designation(parent, DesignationDefOf.InstallLock));
+                    assignedThing = door;
+                },
+            };
         }
         public override void PostExposeData()
         {
             Scribe_References.Look(ref keyHolder, "keyHolder");
             Scribe_Values.Look(ref state, "state", LockState.Locked);
             Scribe_Values.Look(ref assignedState, "assignedState", state);
-            Scribe_References.Look(ref installedThing, "installedThings");
+            Scribe_References.Look(ref installedThing, "installedThing");
+            Scribe_References.Look(ref assignedThing, "assignedThing");
             Scribe_Deep.Look(ref progressBar, "progressBar");
             Scribe_Values.Look(ref lockWhenAway, "lockWhenAway", false);
             Scribe_Values.Look(ref security, "security", CompProp.baseSecurityLevel);

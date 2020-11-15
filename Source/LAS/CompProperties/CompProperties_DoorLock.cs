@@ -11,11 +11,11 @@ namespace LAS
         public List<ThingDef> defaultLocks = new List<ThingDef>();
         public CompProperties_DoorLock() { compClass = typeof(DoorLockComp); }
         public CompProperties_DoorLock(Type compClass) : base(compClass) { }
-        public override IEnumerable<StatDrawEntry> SpecialDisplayStats(StatRequest req)
+        /*public override IEnumerable<StatDrawEntry> SpecialDisplayStats(StatRequest req)
         {
             if (req.HasThing)
                 return null;
             return null;
-        }
+        }*/
     }
 }

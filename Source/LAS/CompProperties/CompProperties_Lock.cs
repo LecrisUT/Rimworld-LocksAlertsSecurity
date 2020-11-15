@@ -21,11 +21,11 @@ namespace LAS
             if (typeof(Building_Door).IsAssignableFrom(parent.thingClass))
                 compClass = typeof(DoorLockComp);
         }
-        public override IEnumerable<StatDrawEntry> SpecialDisplayStats(StatRequest req)
+        /*public override IEnumerable<StatDrawEntry> SpecialDisplayStats(StatRequest req)
         {
             if (req.HasThing)
                 return null;
             return null;
-        }
+        }*/
     }
 }

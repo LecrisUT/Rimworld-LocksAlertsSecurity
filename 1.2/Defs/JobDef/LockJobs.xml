@@ -1,19 +1,19 @@
 <Defs>
     <JobDef>
         <defName>InstallLock</defName>
-        <driverClass>LAS.JobDriver_LockUnlock</driverClass>
+        <driverClass>LAS.JobDriver_InstallLock</driverClass>
         <reportString>installing TargetB in TargetA.</reportString>
         <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
     </JobDef>
     <JobDef>
         <defName>UpgradeLock</defName>
-        <driverClass>LAS.JobDriver_LockUnlock</driverClass>
+        <driverClass>LAS.JobDriver_UpgradeLock</driverClass>
         <reportString>upgrading TargetA with TargetB.</reportString>
         <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
     </JobDef>
     <JobDef>
-        <defName>RemoveLock</defName>
-        <driverClass>LAS.JobDriver_LockUnlock</driverClass>
+        <defName>UninstallLock</defName>
+        <driverClass>LAS.JobDriver_UninstallLock</driverClass>
         <reportString>removing TargetB from TargetA.</reportString>
         <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
     </JobDef>

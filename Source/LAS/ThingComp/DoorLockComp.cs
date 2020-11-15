@@ -97,10 +97,11 @@ namespace LAS
                 return val;
             }
         }
-        public override void Initialize(CompProperties props)
+        public override void PostSpawnSetup(bool respawningAfterLoad)
         {
-            base.Initialize(props);
-            lockOwner = new ThingOwner<ThingWithComps>(this);
+            base.PostSpawnSetup(respawningAfterLoad);
+            if (respawningAfterLoad)
+                return;
             var tickManager = Find.TickManager;
             foreach (var tLockDef in CompProp.defaultLocks)
             {
@@ -109,9 +110,14 @@ namespace LAS
                 tickManager.RegisterAllTickabilityFor(tLock);
             }
         }
+        public override void Initialize(CompProperties props)
+        {
+            base.Initialize(props);
+            lockOwner = new ThingOwner<ThingWithComps>(this);
+        }
         public void InstallLock(LockComp.LockThingPair pair)
         {
-            pair.comp.installedThing = parent;
+            pair.comp.InstalledThing = parent;
             pair.comp.postToggle = delegate
             {
                 var map = parent.MapHeld;
@@ -140,7 +146,7 @@ namespace LAS
             var pair = new LockComp.LockThingPair(lockComp.parent, lockComp);
             InstallLock(pair);
         }
-        public void RemoveLock(ThingWithComps lockThing, ThingOwner outOwner = null)
+        public void RemoveLock(ThingWithComps lockThing, ThingOwner outOwner = null, Map map = null, IntVec3 pos = default)
         {
             if (!lockThing.IsLock(out var lockComp))
             {
@@ -148,21 +154,21 @@ namespace LAS
                     lockOwner.TryDrop(lockThing, ThingPlaceMode.Near, out _);
                 return;
             }
-            if (lockComp.installedThing != parent)
+            if (lockComp.InstalledThing != parent)
                 return;
-            lockComp.installedThing = null;
+            lockComp.InstalledThing = null;
             lockComp.postToggle = null;
             locks.RemoveAll(t => t.thing == lockThing);
             if (outOwner == null)
-                lockOwner.TryDrop(lockThing, ThingPlaceMode.Near, out _);
+                lockOwner.TryDrop(lockThing, map != null ? pos : parent.PositionHeld, map != null ? map : parent.MapHeld, ThingPlaceMode.Near, out _);
             else
                 lockOwner.TryTransferToContainer(lockThing, outOwner, false);
         }
         public void RemoveLock(LockComp lockComp, ThingOwner outOwner = null, Map map = null, IntVec3 pos = default)
         {
-            if (lockComp.installedThing != parent)
+            if (lockComp.InstalledThing != parent)
                 return;
-            lockComp.installedThing = null;
+            lockComp.InstalledThing = null;
             lockComp.postToggle = null;
             locks.RemoveAll(t => t.comp == lockComp);
             if (outOwner == null)
@@ -272,8 +278,11 @@ namespace LAS
         public override void PostDestroy(DestroyMode mode, Map previousMap)
         {
             if (mode == DestroyMode.Deconstruct)
-                foreach (var tLock in lockOwner)
-                    RemoveLock(tLock);
+            {
+                var currLocks = lockOwner.InnerListForReading.ToList();
+                foreach (var tLock in currLocks)
+                    RemoveLock(tLock, null, previousMap, parent.PositionHeld);
+            }
         }
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {

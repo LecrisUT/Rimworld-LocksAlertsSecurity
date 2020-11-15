@@ -13,6 +13,8 @@
 			<MaxHitPoints>100</MaxHitPoints>
 			<Flammability>1.0</Flammability>
 			<DeteriorationRate>2</DeteriorationRate>
+			<LockpickingSuccess>0.1</LockpickingSuccess>
+			<LockpickingSpeed>1.1</LockpickingSpeed>
 		</statBases>
 		<stuffCategories>
 			<li>Stony</li>

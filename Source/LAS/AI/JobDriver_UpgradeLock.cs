@@ -7,15 +7,16 @@ using Verse.Sound;
 
 namespace LAS
 {
-    public class JobDriver_InstallLock : JobDriver
+    public class JobDriver_UpgradeLock : JobDriver
     {
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(job.targetA, job, errorOnFailed: errorOnFailed) && pawn.Reserve(job.targetB,job, errorOnFailed: errorOnFailed);
+            return pawn.Reserve(job.targetA, job, errorOnFailed: errorOnFailed);
         }
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            var lockThing = TargetThingA as ThingWithComps;
+            return null;
+            /*var lockThing = TargetThingA as ThingWithComps;
             var door = TargetThingB as ThingWithComps;
             if (!door.HasDoorLock(out var doorLock) || !lockThing.IsLock(out var lockComp))
             {
@@ -31,12 +32,12 @@ namespace LAS
             });
             yield return carry;
             yield return Toils_Haul.CarryHauledThingToContainer();
-            yield return Toils_General.WaitWith(TargetIndex.B, 1000, true);
+            yield return Toils_General.WaitWith(TargetIndex.A, 1000, true);
             yield return Toils_General.Do(delegate
             {
                 doorLock.InstallLock(lockComp);
                 des.TryRemoveDesignationOn(door, DesignationDefOf.InstallLock);
-            });
+            });*/
         }
     }
 }

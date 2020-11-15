@@ -2,13 +2,18 @@
 <Defs>
 	<StatDef>
 		<defName>LockpickingSuccess</defName>
+		<workerClass>LAS.StatWorker_LockpickStat</workerClass>
 		<label>lockpicking success</label>
-		<description>The pawn's success chance of picking a lock</description>
-		<category>PawnWork</category>
+		<description>The success chance of picking a lock</description>
+		<category>Security</category>
 		<defaultBaseValue>0</defaultBaseValue>
-		<minValue>-1</minValue>
+		<minValue>0</minValue>
 		<maxValue>1</maxValue>
 		<toStringStyle>PercentZero</toStringStyle>
+		<parts>
+			<li Class="LAS.StatPart_Pinning"/>
+			<li Class="LAS.StatPart_Broken"/>
+		</parts>
 		<skillNeedOffsets>
 			<li Class="SkillNeed_BaseBonus">
 				<skill>Crafting</skill>
@@ -38,13 +43,18 @@
 
 	<StatDef>
 		<defName>LockpickingSpeed</defName>
+		<workerClass>LAS.StatWorker_LockpickStat</workerClass>
 		<label>lockpicking speed</label>
-		<description>The pawn's speed for picking locks</description>
-		<category>PawnWork</category>
+		<description>The speed for picking locks</description>
+		<category>Security</category>
 		<defaultBaseValue>1</defaultBaseValue>
 		<minValue>0.1</minValue>
 		<maxValue>5</maxValue>
 		<toStringStyle>PercentZero</toStringStyle>
+		<parts>
+			<li Class="LAS.StatPart_Pinning"/>
+			<li Class="LAS.StatPart_Broken"/>
+		</parts>
 		<skillNeedFactors>
 			<li Class="SkillNeed_BaseBonus">
 				<skill>Crafting</skill>

@@ -37,7 +37,7 @@ namespace LAS
 				{
 					//job.targetQueueB = new List<LocalTargetInfo>(doorLock.LockComps.Where(t => t.State.IsLocked()).Select(t => t.parent).Cast<LocalTargetInfo>());
 					var queue = job.GetTargetQueue(TargetIndex.B);
-					queue.RemoveAll(t => !(t.Thing is ThingWithComps twc) || !twc.IsLock(out var tlc) || tlc.installedThing != door);
+					queue.RemoveAll(t => !(t.Thing is ThingWithComps twc) || !twc.IsLock(out var tlc) || tlc.InstalledThing != door);
 					if (queue.NullOrEmpty() && checkLocks)
 						foreach (var lc in doorLock.LockComps.Where(t => t.State.IsLocked()))
 							job.AddQueuedTarget(TargetIndex.B, lc.parent);
@@ -63,7 +63,9 @@ namespace LAS
 				{
 					if (!(TargetThingB is ThingWithComps twc) || !twc.IsLock(out lockComp))
 						return;
-					var num = 100f * lockComp.Security / pawn.GetStatValue(StatDefOf.LockpickingSpeed);
+					var num = 100f;
+					num /= lockComp.InstalledThing.GetStatValue(StatDefOf.LockpickingSpeed);
+					num /= pawn.GetStatValue(StatDefOf.LockpickingSpeed);
 					ticksToLockpick = Mathf.Clamp(Mathf.FloorToInt(num), Settings.minLockpickTime, Settings.maxLockpickTime);
 					ticksLeftToLockpick = ticksToLockpick;
 				},
@@ -85,7 +87,7 @@ namespace LAS
 					if (--ticksLeftToLockpick <= 0)
 					{
 						var num = pawn.GetStatValue(StatDefOf.LockpickingSuccess);
-						num -= lockComp.Security;
+						num += lockComp.InstalledThing.GetStatValue(StatDefOf.LockpickingSuccess);
 						num = Mathf.Clamp(num, Settings.minLockpickSuccess, Settings.maxLockpickSuccess);
 						if (!Rand.Chance(num))
 						{

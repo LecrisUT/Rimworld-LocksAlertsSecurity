@@ -10,8 +10,8 @@ namespace LAS
         {
             if (!(focusTarg.Thing is ThingWithComps twc) || !twc.IsLock(out lockComp))
                 return;
-            if (lockComp.installedThing != null)
-                this.focusTarg = lockComp.installedThing;
+            if (lockComp.InstalledThing != null)
+                this.focusTarg = lockComp.InstalledThing;
         }
         public void Interrupt()
         {

@@ -9,14 +9,11 @@ using Verse.Sound;
 
 namespace LAS
 {
-    public class LockGizmo : Command_Target
+    /*public class LockGizmo : Command_Target
     {
-        private ThingWithComps lockThing;
-        private LockComp lockComp;
         public LockGizmo(ThingWithComps thing, LockComp lockComp)
         {
-            lockThing = thing;
-            this.lockComp = lockComp;
+
             targetingParams = new TargetingParameters
             {
                 thingCategory = ThingCategory.Building,
@@ -40,5 +37,5 @@ namespace LAS
                     door.Map.designationManager.AddDesignation(new Designation(door, DesignationDefOf.ModifyDoorLock));
             };
         }
-    }
+    }*/
 }
